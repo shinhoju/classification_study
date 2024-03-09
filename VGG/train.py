@@ -17,11 +17,12 @@ parser = argparse.ArgumentParser(description="VGGNet parameters")
 parser.add_argument("--num_layers", type=str, default="13",
                     help="available options: 13, 16, 19")
 parser.add_argument("--data_root", type=str, default="./data/")
-parser.add_argument("--batch_size", type=int, default=256)
+parser.add_argument("--batch_size", type=int, default=100)
 parser.add_argument("--epoch", type=int, default=100)
-parser.add_argument("--lr", type=float, default=0.01)
+parser.add_argument("--lr", type=float, default=0.0002)
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print(device)
 
 # VGGNet model definition
 class VGGNet(nn.Module):
@@ -124,10 +125,11 @@ if __name__ == "__main__":
 
     # model
     model = VGGNet(args.num_layers).to(device)
-    optimizer = optim.SGD(params=model.parameters(), lr=args.lr)
+    optimizer = optim.Adam(params=model.parameters(), lr=args.lr)
     criterion = nn.CrossEntropyLoss().to(device)
 
     best_acc = 0
+    step = 0
     for epoch in range(1, args.epoch+1):
         model.train()
 
@@ -154,8 +156,9 @@ if __name__ == "__main__":
             if batch % 20 == 0:
                 print('TRAIN: EPOCH %d/%d | BATCH: %d/%d | LOSS: %.4f | ACC: %.4f'
                       % (epoch, args.epoch, batch, num_batch, np.mean(loss_arr), np.mean(acc_arr)))
-                writer.add_scalar("Loss/train", np.mean(loss_arr), batch)
-                writer.add_scalar("Accuracy/train", np.mean(acc_arr), batch)
+                step += batch
+                writer.add_scalar("Loss/train", np.mean(loss_arr), step)
+                writer.add_scalar("Accuracy/train", np.mean(acc_arr), step)
 
             
         with torch.no_grad():
@@ -183,7 +186,7 @@ if __name__ == "__main__":
             writer.add_scalar("Accuracy/test", np.mean(acc_arr), epoch)
         
         # save model
-        save_dir = './weights'
+        save_dir = './VGG/weights'
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
         best_model_path = os.path.join(save_dir, "best_epoch.pth")
@@ -193,6 +196,6 @@ if __name__ == "__main__":
             best_acc = np.mean(acc_arr)
             if os.path.exists(best_model_path):
                 os.remove(best_model_path)
-        print(f"Overridden Best Epoch {epoch}")
+            print(f"Best Epoch {epoch} Overridden.")
 
-        torch.save(model.state_dict(), f'best_epoch.pth')
+        torch.save(model.state_dict(), os.path.join(save_dir, 'best_epoch.pth'))
