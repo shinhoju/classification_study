@@ -28,3 +28,24 @@ pip install -r requirements.txt
 ``` bash
 python train.py
 ```
+
+## Goal #2
+ResNet 모델을 활용한 Kaggle 데이터셋 학습
+### Dataset
+[Kaggle: 6 Human Emotions](https://www.kaggle.com/datasets/yousefmohamed20/sentiment-images-classifier)
+
+### Model Structure
+- ResNet-28, 50, 101 구현
+
+### Train
+1. No augmentation
+2. Strong augmentation
+    - 기본 방식 [참고](https://velog.io/@xpelqpdj0422/3.-%EC%9E%98-%EB%A7%8C%EB%93%A0-Augmentation-%EC%9D%B4%EB%AF%B8%EC%A7%80-100%EC%9E%A5-%EC%95%88-%EB%B6%80%EB%9F%BD%EB%8B%A4)
+    - MixUp, Mosaic 기법
+3. Scheduler & optimizer
+    - Learning rate scheduler [참고](https://gaussian37.github.io/dl-pytorch-lr_scheduler/)
+    - Optimizer: SGD, Adam, AdamW
+    - Hyper parameter tuning
+
+### Test
+🚧
